@@ -22,37 +22,35 @@ public class ImagesComparingService {
         this.secondImage = loadImage(secondImage);
     }
 
-    public void compareImages() {
+    public void compareImagesAndDrawRectangles() {
         resultImage = new BufferedImage(secondImage.getWidth(), secondImage.getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D newImage = resultImage.createGraphics();
         newImage.drawImage(secondImage, null, null);
         newImage.setColor(Color.red);
         int xPortions = secondImage.getWidth() / XPARTS;
         int yPortions = secondImage.getHeight() / YPARTS;
-        for (int row = 0; row < YPARTS; row++) {
-            for (int column = 0; column < XPARTS; column++) {
-                int firstImageArray[][] = getPixelsArray(firstImage.getSubimage(column * xPortions, row * yPortions, xPortions - 1, yPortions - 1));
-                int secondImageArray[][] = getPixelsArray(secondImage.getSubimage(column * xPortions, row * yPortions, xPortions - 1, yPortions - 1));
-                drawRectangle(firstImageArray, secondImageArray, column, row, xPortions, yPortions, newImage);
-            }
-        }
-    }
-
-    private void drawRectangle(int [][] firstImageArray, int [][] secondImageArray, int column, int row, int xPortions, int yPortions, Graphics2D newImage) {
         boolean isEquals = true;
         int firstX = 0;
-        for (int i = 0; i < firstImageArray.length; i++) {
-            for (int j = 0; j < firstImageArray[0].length; j++) {
-                int difference = Math.abs(firstImageArray[i][j] - secondImageArray[i][j]);
-                if (difference > TOLERANCE) {
-                    if (isEquals) {
-                        isEquals = false;
-                        firstX = (column * xPortions) + j;
+        for (int row = 0; row < YPARTS; row++) {
+            for (int column = 0; column < XPARTS; column++) {
+
+                int firstImageArray[][] = getPixelsArray(firstImage.getSubimage(column * xPortions, row * yPortions, xPortions - 1, yPortions - 1));
+                int secondImageArray[][] = getPixelsArray(secondImage.getSubimage(column * xPortions, row * yPortions, xPortions - 1, yPortions - 1));
+
+                for (int i = 0; i < firstImageArray.length; i++) {
+                    for (int j = 0; j < firstImageArray[0].length; j++) {
+                        int difference = Math.abs(firstImageArray[i][j] - secondImageArray[i][j]);
+                        if (difference > TOLERANCE) {
+                            if (isEquals) {
+                                isEquals = false;
+                                firstX = (column * xPortions) + j;
+                            }
+                        }
+                        if (difference == 0 && !isEquals && (column * xPortions) - firstX > ACCEPTABLE_SIMILAR_PIXELS_IN_DIFF_AREA) {
+                            isEquals = true;
+                            newImage.drawRect(firstX, row * yPortions, (column * xPortions) - firstX, yPortions);
+                        }
                     }
-                }
-                if (difference == 0 && !isEquals && (column * xPortions) - firstX > ACCEPTABLE_SIMILAR_PIXELS_IN_DIFF_AREA) {
-                    isEquals = true;
-                    newImage.drawRect(firstX, row * yPortions, (column * xPortions) - firstX, yPortions);
                 }
             }
         }
