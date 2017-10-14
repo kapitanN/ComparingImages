@@ -22,7 +22,7 @@ public class ImagesComparingService {
         this.secondImage = loadImage(secondImage);
     }
 
-    public void compareImagesAndDrawRectangles() {
+    public void compareImages() {
         resultImage = new BufferedImage(secondImage.getWidth(), secondImage.getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D newImage = resultImage.createGraphics();
         newImage.drawImage(secondImage, null, null);
